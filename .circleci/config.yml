@@ -5,6 +5,9 @@ executors:
     docker:
       - image: pkarnakov/aphros-gcc-openmp:0.1
 
+# using environment variable CacheSuff
+# defined in the Project Settings
+
 jobs:
   build:
     executor: mainexecutor
@@ -28,26 +31,31 @@ jobs:
             cd deploy
             ./install_setenv -f ~/opt/aphros
             . ~/.local/bin/ap.setenv
-            (mkdir -p build && cd build && cmake .. && make -j4 VERBOSE=1 && make install)
-            cd ..
+            mkdir -p build
+            cd build
+            cmake -DCMAKE_BUILD_TYPE=Release ..
+            make -j4
+            make install
+            cd ../..
       - save_cache:
           key: cache-deploy-{{ .Environment.CacheSuff }}
           paths:
             - ~/aphros/deploy/build
             - ~/opt/aphros
 
-      - run:
-          command: |
-            ls -al -R ~/opt/aphros || true
-            ls -al -R ~/.local || true
-            ls -al -R ~/aphros/deploy/build || true
-
       - restore_cache:
           keys:
             - cache-src-{{ .Environment.CacheSuff }}
       - run:
           name: Build source
-          command: (. ~/.local/bin/ap.setenv && cd src && make -j4)
+          command: |
+            . ~/.local/bin/ap.setenv
+            mkdir -p src/build
+            cd src/build
+            cmake -DCMAKE_BUILD_TYPE=Release ..
+            make -j4
+            make install
+            cd ../..
       - save_cache:
           key: cache-src-{{ .Environment.CacheSuff }}
           paths:
@@ -64,13 +72,10 @@ jobs:
   test:
     executor: mainexecutor
     working_directory: ~/aphros
+    environment:
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
     steps:
-      - run:
-          name: Allow mpirun as root
-          command: |
-            mkdir -p \$HOME/.local/bin
-            export PATH=\$HOME/.local/bin:\$PATH
-            echo '/usr/bin/mpirun --allow-run-as-root "$@"' > \$HOME/.local/bin/mpirun
       - attach_workspace:
           at: ~/
       - run:
