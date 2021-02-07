@@ -30,7 +30,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - cache-deploy
+            - cache-deploy-v2
       - run:
           name: Build dependencies
           command: |
@@ -40,7 +40,7 @@ jobs:
             (mkdir -p build && cd build && cmake .. && make -j4 VERBOSE=1 && make install)
             cd ..
       - save_cache:
-          key: cache-deploy
+          key: cache-deploy-v2
           paths:
             - ~/aphros/deploy/build
             - ~/opt/aphros
