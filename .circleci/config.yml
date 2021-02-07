@@ -69,7 +69,8 @@ jobs:
             . ~/.local/bin/ap.setenv
             cd src/build
             ctest -N | cut -d: -f 2 | head -n -2 | tail -n +2 > list
-            ctest -j 4 -R "$(circleci tests split list | xargs -n 1 echo | tr '\n' '|' | sed 's/.$//')"
+            circleci tests split list | xargs -n 1 echo | tr '\n' '|' | sed 's/.$//' > listsplit
+            ctest -j 4 -R "$(cat listsplit)"
       - store_artifacts:
           path: /root/aphros/src/build/Testing/Temporary/LastTest.log
           destination: LastTest.log
