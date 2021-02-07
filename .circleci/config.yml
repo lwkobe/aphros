@@ -10,7 +10,7 @@ jobs:
     executor: mainexecutor
     working_directory: ~/aphros
     environment:
-      - CacheSuff: v5
+      CacheSuff: v5
     steps:
       - restore_cache:
           keys:
