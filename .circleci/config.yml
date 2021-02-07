@@ -8,17 +8,22 @@ executors:
 jobs:
   build:
     executor: mainexecutor
-    working_directory: aphros
+    working_directory: ~/aphros
     steps:
       - run:
-          name: Install dependencies
+          name: Install system packages
           command: |
             update-alternatives --install /usr/bin/gfortran gfortran /usr/local/bin/gfortran 999
             apt update
             apt install -y --no-install-recommends apt-utils
             apt install -y make cmake libhdf5-openmpi-dev hdf5-tools python3 python3-numpy sudo rsync libgsl-dev
             apt remove -y gfortran
+
       - checkout
+
+      - restore_cache:
+          keys:
+            - cache-deploy
       - run:
           name: Build dependencies
           command: |
@@ -27,9 +32,24 @@ jobs:
             . ~/.local/bin/ap.setenv
             (mkdir -p build && cd build && cmake .. && make -j4 VERBOSE=1 && make install)
             cd ..
+      - save_cache:
+          key: cache-deploy
+          paths:
+            - ~/aphros/deploy/build
+            - ~/opt/aphros
+
+      - restore_cache:
+          keys:
+            - cache-src
       - run:
           name: Build source
           command: (. ~/.local/bin/ap.setenv && cd src && make -j4)
+      - save_cache:
+          key: cache-src
+          paths:
+            - ~/aphros/src/build
+            - ~/aphros/src/test
+
       - persist_to_workspace:
           root: ~/
           paths:
@@ -39,16 +59,10 @@ jobs:
 
   test:
     executor: mainexecutor
-    working_directory: aphros
+    working_directory: ~/aphros
     steps:
       - attach_workspace:
           at: ~/
-      - run:
-          command: ls -al
-      - run:
-          command: ls -al aphros
-      - run:
-          command: ls -al src
       - run:
           name: Test
           command: (. ~/.local/bin/ap.setenv && cd src/build && ctest -j 4 --all)
