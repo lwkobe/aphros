@@ -4,8 +4,6 @@ executors:
   mainexecutor:
     docker:
       - image: pkarnakov/aphros-gcc-openmp:0.1
-    environment:
-      CacheSuff: v5
 
 jobs:
   build:
