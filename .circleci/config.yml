@@ -4,6 +4,8 @@ executors:
   mainexecutor:
     docker:
       - image: pkarnakov/aphros-gcc-openmp:0.1
+    environment:
+      - CacheSuff: v5
 
 jobs:
   build:
@@ -12,16 +14,16 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - cache-git
+            - cache-git-{{ .Environment.CacheSuff }}
       - checkout
       - save_cache:
-          key: cache-git
+          key: cache-git-{{ .Environment.CacheSuff }}
           paths:
             - .git
 
       - restore_cache:
           keys:
-            - cache-deploy-v2
+            - cache-deploy-{{ .Environment.CacheSuff }}
       - run:
           name: Build dependencies
           command: |
@@ -31,7 +33,7 @@ jobs:
             (mkdir -p build && cd build && cmake .. && make -j4 VERBOSE=1 && make install)
             cd ..
       - save_cache:
-          key: cache-deploy-v2
+          key: cache-deploy-{{ .Environment.CacheSuff }}
           paths:
             - ~/aphros/deploy/build
             - ~/opt/aphros
@@ -44,12 +46,12 @@ jobs:
 
       - restore_cache:
           keys:
-            - cache-src
+            - cache-src-{{ .Environment.CacheSuff }}
       - run:
           name: Build source
           command: (. ~/.local/bin/ap.setenv && cd src && make -j4)
       - save_cache:
-          key: cache-src
+          key: cache-src-{{ .Environment.CacheSuff }}
           paths:
             - ~/aphros/src/build
             - ~/aphros/src/test
