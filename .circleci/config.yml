@@ -15,16 +15,8 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - cache-git-{{ .Environment.CacheSuff }}
+            - cache-build-{{ .Environment.CacheSuff }}
       - checkout
-      - save_cache:
-          key: cache-git-{{ .Environment.CacheSuff }}
-          paths:
-            - .git
-
-      - restore_cache:
-          keys:
-            - cache-deploy-{{ .Environment.CacheSuff }}
       - run:
           name: Build dependencies
           command: |
@@ -37,15 +29,6 @@ jobs:
             make -j4
             make install
             cd ../..
-      - save_cache:
-          key: cache-deploy-{{ .Environment.CacheSuff }}
-          paths:
-            - ~/aphros/deploy/build
-            - ~/opt/aphros
-
-      - restore_cache:
-          keys:
-            - cache-src-{{ .Environment.CacheSuff }}
       - run:
           name: Build source
           command: |
@@ -57,10 +40,11 @@ jobs:
             make install
             cd ../..
       - save_cache:
-          key: cache-src-{{ .Environment.CacheSuff }}
+          key: cache-build-{{ .Environment.CacheSuff }}
           paths:
-            - ~/aphros/src/build
-            - ~/aphros/src/test
+            - .git
+            - ~/aphros
+            - ~/opt/aphros
 
       - persist_to_workspace:
           root: ~/
