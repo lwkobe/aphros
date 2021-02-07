@@ -10,15 +10,6 @@ jobs:
     executor: mainexecutor
     working_directory: ~/aphros
     steps:
-      - run:
-          name: Install system packages
-          command: |
-            update-alternatives --install /usr/bin/gfortran gfortran /usr/local/bin/gfortran 999
-            apt update
-            apt install -y --no-install-recommends apt-utils
-            apt install -y make cmake libhdf5-openmpi-dev hdf5-tools python3 python3-numpy sudo rsync libgsl-dev
-            apt remove -y gfortran
-
       - restore_cache:
           keys:
             - cache-git
@@ -75,13 +66,8 @@ jobs:
     working_directory: ~/aphros
     steps:
       - run:
-          name: Install system packages
+          name: Allow mpirun as root
           command: |
-            update-alternatives --install /usr/bin/gfortran gfortran /usr/local/bin/gfortran 999
-            apt update
-            apt install -y --no-install-recommends apt-utils
-            apt install -y make cmake libhdf5-openmpi-dev hdf5-tools python3 python3-numpy sudo rsync libgsl-dev
-            apt remove -y gfortran
             mkdir -p \$HOME/.local/bin
             export PATH=\$HOME/.local/bin:\$PATH
             echo '/usr/bin/mpirun --allow-run-as-root "$@"' > \$HOME/.local/bin/mpirun
