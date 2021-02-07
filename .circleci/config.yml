@@ -35,7 +35,7 @@ jobs:
           name: Build dependencies
           command: |
             cd deploy
-            ./install_setenv ~/opt/aphros
+            ./install_setenv -f ~/opt/aphros
             . ~/.local/bin/ap.setenv
             (mkdir -p build && cd build && cmake .. && make -j4 VERBOSE=1 && make install)
             cd ..
@@ -44,6 +44,12 @@ jobs:
           paths:
             - ~/aphros/deploy/build
             - ~/opt/aphros
+
+      - run:
+          command: |
+            ls -al -R ~/opt/aphros || true
+            ls -al -R ~/.local || true
+            ls -al -R ~/aphros/deploy/build || true
 
       - restore_cache:
           keys:
