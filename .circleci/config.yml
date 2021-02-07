@@ -82,6 +82,9 @@ jobs:
             apt install -y --no-install-recommends apt-utils
             apt install -y make cmake libhdf5-openmpi-dev hdf5-tools python3 python3-numpy sudo rsync libgsl-dev
             apt remove -y gfortran
+            mkdir -p \$HOME/.local/bin
+            export PATH=\$HOME/.local/bin:\$PATH
+            echo '/usr/bin/mpirun --allow-run-as-root "$@"' > \$HOME/.local/bin/mpirun
       - attach_workspace:
           at: ~/
       - run:
