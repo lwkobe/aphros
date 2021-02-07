@@ -3,7 +3,7 @@ version: 2.1
 executors:
   mainexecutor:
     docker:
-      - image: gcc:latest
+      - image: pkarnakov/aphros-gcc-openmp:0.1
 
 jobs:
   build:
