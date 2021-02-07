@@ -19,7 +19,14 @@ jobs:
             apt install -y make cmake libhdf5-openmpi-dev hdf5-tools python3 python3-numpy sudo rsync libgsl-dev
             apt remove -y gfortran
 
+      - restore_cache:
+          keys:
+            - cache-git
       - checkout
+      - save_cache:
+          key: cache-git
+          paths:
+            - .git
 
       - restore_cache:
           keys:
